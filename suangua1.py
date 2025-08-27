@@ -50,42 +50,34 @@ def get_current_date():
     return now.year, now.month, now.day
 
 
-# 获取农历信息
-current_year, current_month, current_day = get_current_date()
-lunar_info = None
-
-try:
-    from lunar_python import Solar
-
-
-    class LunarTool:
-        @classmethod
-        def convert(cls, year, month, day):
-            try:
-                solar = Solar(year, month, day, 0, 0, 0)
-                lunar = solar.getLunar()
-                return {
-                    '月': lunar.getMonth(),
-                    '日': lunar.getDay(),
-                    '月中文': lunar.getMonthInChinese(),
-                    '日中文': lunar.getDayInChinese()
-                }
-            except Exception as e:
-                print(f"农历转换错误: {e}")
-                return None
-
-
-    lunar_info = LunarTool.convert(current_year, current_month, current_day)
-    if lunar_info:
-        print(f"\n当前农历：{lunar_info['月中文']}{lunar_info['日中文']}")
-except ImportError:
-    print("\n未安装lunar-python库，无法进行农历转换")
-except Exception as e:
-    print(f"\n发生错误: {e}")
+# 农历转换工具类
+class LunarTool:
+    @classmethod
+    def convert(cls, year, month, day):
+        try:
+            from lunar_python import Solar
+            solar = Solar(year, month, day, 0, 0, 0)
+            lunar = solar.getLunar()
+            return {
+                '月': lunar.getMonth(),
+                '日': lunar.getDay(),
+                '月中文': lunar.getMonthInChinese(),
+                '日中文': lunar.getDayInChinese()
+            }
+        except ImportError:
+            print("未安装lunar-python库，无法进行农历转换")
+            return None
+        except Exception as e:
+            print(f"农历转换错误: {e}")
+            return None
 
 
 # 计算吉凶结果
 def jg():
+    # 在函数内部获取农历信息
+    current_year, current_month, current_day = get_current_date()
+    lunar_info = LunarTool.convert(current_year, current_month, current_day)
+    
     if not lunar_info:
         print("无法获取农历信息，无法计算")
         return
